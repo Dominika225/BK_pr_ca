@@ -1,0 +1,41 @@
+from HttpRequest import HttpRequest
+from HttpResponse import HttpResponse
+import time
+import socket
+import json
+
+
+class HttpServer():
+    @staticmethod
+    def handlerequest(request, sock):
+        response = HttpResponse()
+
+        if request.method == "GET" and request.endpoint == "/":
+            # nieco urobim
+            time.sleep(3)
+            response.http_code = 200
+            backdata = {"message": "Here´s your data"}
+            response.body = json.dumps(backdata)
+
+        elif request.method == "POST" and request.endpoint == "/":
+            time.sleep(3)
+            response.http_code = 200
+            backdata = {"message": "Here´s your data for POST"}
+            response.body = json.dumps(backdata)
+
+        else:
+            errormessage = {"Error": "Nothing to see here"}
+            response.http_code = 404
+            print(response.http_code)
+            json_error = json.dumps(errormessage)
+            response_error = json_error.encode('utf-8')
+            sock.sendall(str(len(response_error)).encode('utf-8') + b'\n')
+            sock.sendall(response_error)  # posielanie dat
+            # posielanie dat klientovi, ktore su zakodovane do typu
+            # utf-8
+
+        response_data = response.body.encode('utf-8')
+        sock.sendall(str(len(response_data)).encode('utf-8') + b'\n')
+        sock.sendall(response_data)
+
+        return response
